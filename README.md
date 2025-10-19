@@ -171,6 +171,44 @@ c. Generar una lista de pares (x, y) donde x < y y ambos estén en [1..5].
    ```
 ---
 
+## Ejercicio 4 - Funciones que reciben y retornan funciones
+
+1. Define una funcion que recibe una función que transforma una lectura (por ejemplo, conversión de grados Celsius a Fahrenheit, o aplicar calibración),
+y una lista de lecturas de sensores.
+
+   ```
+   procesarLecturas :: (Double -> Double) -> [Double] -> [Double]
+   procesarLecturas f lecturas = map f lecturas
+   ```
+
+2. Define una función que retorne un filtro personalizado:
+    ```
+   crearFiltro :: (a -> Bool) -> ([a] -> [a])
+
+   Ejemplo:
+   
+   soloPares = crearFiltro even
+   soloPares [1..10] == [2,4,6,8,10]
+    ```
+
+3. Crea una función que genera “verificadores” de rangos.
+    ```
+    enRango :: Int -> Int -> (Int -> Bool)
+    enRango min max = (\x -> x >= min && x <= max)
+
+    Ejemplo:
+    
+    entre5y10 = enRango 5 10
+    entre5y10 7   -- True
+    ```
+
+4. Genera una función que eleva a una potencia dada.
+
+   ```
+   potenciador :: Int -> (Int -> Int)
+   potenciador n = (\x -> x ^ n)
+   ```
+
 ## Retrospectiva
 1. ¿Cuál fue el tiempo total invertido en el laboratorio por cada uno de ustedes? (Horas/Hombre)
 2. ¿Cuál es el estado actual del laboratorio? ¿Por qué?
