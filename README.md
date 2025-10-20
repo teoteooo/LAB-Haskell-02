@@ -209,6 +209,101 @@ y una lista de lecturas de sensores.
    potenciador n = (\x -> x ^ n)
    ```
 
+
+## Ejercicio 5 - “El problema de las dos jarras” usando A*
+
+**Objetivo:**
+
+Usar el algoritmo A* para encontrar la secuencia más corta de acciones que permita medir exactamente 4 litros usando dos jarras:
+
+* una de 5 litros,
+* otra de 3 litros,
+* y una fuente de agua infinita.
+
+**Descripción del problema**
+
+Tienes:
+
+* Jarra A de capacidad 5 L
+* Jarra B de capacidad 3 L
+
+**Operaciones posibles:**
+
+* Llenar una jarra completamente.
+* Vaciar una jarra.
+* Verter el contenido de una jarra en la otra hasta que una se vacíe o la otra se llene.
+
+Estado inicial: (0, 0)
+
+Meta: cualquier estado donde una jarra tenga 4 litros, es decir: (4, _ ) o ( _ ,4)
+
+**Representación de estados**
+
+Cada estado es un par (a, b) donde:
+
+* a = litros en la jarra de 5 L
+* b = litros en la jarra de 3 L
+  
+```
+type Estado = (Int, Int)
+type Nodo = Estado
+type Costo = Int
+type Grafo = [(Nodo, [(Nodo, Costo)])]
+```
+
+Definimos las operaciones válidas desde un estado (a, b):
+
+```
+capA, capB :: Int
+capA = 5
+capB = 3
+
+-- Genera todos los estados alcanzables desde uno dado
+vecinos :: Estado -> [(Estado, Costo)]
+vecinos (a,b) =
+  [ ((capA, b), 1)            -- Llenar jarra A
+  , ((a, capB), 1)            -- Llenar jarra B
+  , ((0, b), 1)               -- Vaciar jarra A
+  , ((a, 0), 1)               -- Vaciar jarra B
+  , (transferirAB (a,b), 1)  -- Verter A→B
+  , (transferirBA (a,b), 1)  -- Verter B→A
+  ]
+
+-- Verter de A a B
+Definir transferirAB :: Estado -> Estado
+
+-- Verter de B a A
+transferirBA :: Estado -> Estado
+```
+
+Definir una heurística admisible
+
+```
+heuristica :: Estado -> Costo
+```
+
+Probar la solución con el algoritmo base de A*
+
+```
+import Data.List (sortOn)
+
+aStar :: (Nodo -> [(Nodo, Costo)]) -> (Nodo -> Costo) -> Nodo -> Nodo -> [(Nodo, Costo)]
+aStar sucesores heuristica inicio meta = buscar [(inicio, 0)] []
+  where
+    buscar [] _ = []
+    buscar ((nodo, costo):cola) visitados
+      | nodo == meta = [(nodo, costo)]
+      | nodo `elem` visitados = buscar cola visitados
+      | otherwise =
+          let nuevos = [ (v, costo + c) | (v, c) <- sucesores nodo, v `notElem` visitados ]
+              ordenados = sortOn (\(v, c) -> c + heuristica v) (cola ++ nuevos)
+          in (nodo, costo) : buscar ordenados (nodo : visitados)
+
+aStar vecinos heuristica inicio meta
+
+```
+
+
 ## Retrospectiva
 1. ¿Cuál fue el tiempo total invertido en el laboratorio por cada uno de ustedes? (Horas/Hombre)
 2. ¿Cuál es el estado actual del laboratorio? ¿Por qué?
